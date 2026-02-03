@@ -1,0 +1,32 @@
+# IDE
+.vs/
+.vscode/
+*.suo
+*.user
+*.sln.docstates
+
+# Build
+bin/
+obj/
+*.dll
+*.exe
+
+# Logs
+*.log
+logs/
+
+# Sensitive files
+*.env
+credentials.json
+secrets.json
+connection-strings.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp files
+*.tmp
+*.temp
+~$*
