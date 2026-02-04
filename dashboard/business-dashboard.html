@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retail Analytics - Business Intelligence Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --success-light: #d1fae5;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --info: #3b82f6;
+            --info-light: #dbeafe;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --gold: #fbbf24;
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            --purple-gradient: linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%);
+            --green-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --blue-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            --pink-gradient: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            padding: 24px;
+            z-index: 100;
+            overflow-y: auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gold-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #1e293b;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo-subtext {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: var(--purple-gradient);
+            color: white;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            padding: 24px 32px;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .header-left p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .date-range {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .refresh-btn {
+            padding: 10px 20px;
+            background: var(--purple-gradient);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: scale(1.02);
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .kpi-card.revenue::before { background: var(--gold-gradient); }
+        .kpi-card.profit::before { background: var(--green-gradient); }
+        .kpi-card.orders::before { background: var(--blue-gradient); }
+        .kpi-card.customers::before { background: var(--pink-gradient); }
+
+        .kpi-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .kpi-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .kpi-icon.revenue { background: rgba(251, 191, 36, 0.15); color: var(--gold); }
+        .kpi-icon.profit { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .kpi-icon.orders { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .kpi-icon.customers { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+
+        .kpi-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .kpi-trend.up { background: var(--success-light); color: var(--success); }
+        .kpi-trend.down { background: var(--danger-light); color: var(--danger); }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .kpi-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .chart-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .chart-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chart-btn {
+            padding: 6px 12px;
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chart-btn.active, .chart-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Store Cards */
+        .stores-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .store-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .store-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .store-rank {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .store-rank.gold { background: var(--gold-gradient); color: #1e293b; }
+        .store-rank.silver { background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%); color: #1e293b; }
+        .store-rank.bronze { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: white; }
+        .store-rank.normal { background: var(--bg-tertiary); color: var(--text-secondary); }
+
+        .store-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .store-location {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .store-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .store-metric {
+            text-align: center;
+            padding: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+        }
+
+        .store-metric-value {
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--gold);
+        }
+
+        .store-metric-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* Products Table */
+        .products-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .products-table th {
+            text-align: left;
+            padding: 12px 16px;
+            background: var(--bg-tertiary);
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .products-table th:first-child {
+            border-radius: 8px 0 0 8px;
+        }
+
+        .products-table th:last-child {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .products-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .products-table tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .product-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .product-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .product-icon.electronics { background: rgba(59, 130, 246, 0.15); color: var(--info); }
+        .product-icon.home { background: rgba(16, 185, 129, 0.15); color: var(--success); }
+        .product-icon.sports { background: rgba(251, 191, 36, 0.15); color: var(--gold); }
+        .product-icon.fashion { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+        .product-icon.food { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+
+        .product-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .product-brand {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-electronics { background: var(--info-light); color: var(--info); }
+        .badge-home { background: var(--success-light); color: var(--success); }
+        .badge-sports { background: var(--warning-light); color: var(--warning); }
+        .badge-fashion { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
+        .badge-food { background: rgba(249, 115, 22, 0.15); color: #f97316; }
+
+        /* Category Bars */
+        .category-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .category-name {
+            width: 120px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .category-bar-container {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 12px;
+        }
+
+        .category-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .category-value {
+            width: 80px;
+            text-align: right;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        /* Customer Leaderboard */
+        .customer-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            background: var(--bg-tertiary);
+            transition: transform 0.2s ease;
+        }
+
+        .customer-item:hover {
+            transform: translateX(4px);
+        }
+
+        .customer-rank {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .customer-info {
+            flex: 1;
+        }
+
+        .customer-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .customer-orders {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .customer-value {
+            text-align: right;
+        }
+
+        .customer-spend {
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .customer-aov {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* Inventory Status */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .inventory-stat {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+        }
+
+        .inventory-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .inventory-stat-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .stores-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .main-content { margin-left: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .stores-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 16px; align-items: flex-start; }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        .delay-4 { animation-delay: 0.4s; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+            <div>
+                <div class="logo-text">RetailPulse</div>
+                <div class="logo-subtext">Business Analytics</div>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Main Menu</div>
+            <div class="nav-item active" data-page="dashboard">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-page="sales">
+                <i class="fas fa-chart-bar"></i>
+                <span>Sales Analytics</span>
+            </div>
+            <div class="nav-item" data-page="products">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+            </div>
+            <div class="nav-item" data-page="customers">
+                <i class="fas fa-users"></i>
+                <span>Customers</span>
+            </div>
+            <div class="nav-item" data-page="stores">
+                <i class="fas fa-store"></i>
+                <span>Stores</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Reports</div>
+            <div class="nav-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Daily Report</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-calendar"></i>
+                <span>Monthly Report</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-download"></i>
+                <span>Export Data</span>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-section-title">Settings</div>
+            <div class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Configuration</span>
+            </div>
+            <div class="nav-item" onclick="window.open('index.html', '_blank')">
+                <i class="fas fa-shield-alt"></i>
+                <span>Data Governance</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <h1>Business Dashboard</h1>
+                <p>Welcome back! Here's what's happening with your retail business.</p>
+            </div>
+            <div class="header-right">
+                <div class="date-range">
+                    <i class="fas fa-calendar"></i>
+                    <span>Nov 2025 - Feb 2026</span>
+                </div>
+                <button class="refresh-btn" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+        </header>
+
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card revenue animate">
+                <div class="kpi-header">
+                    <div class="kpi-icon revenue"><i class="fas fa-dollar-sign"></i></div>
+                    <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> 12.5%</div>
+                </div>
+                <div class="kpi-value">$1,269,342</div>
+                <div class="kpi-label">Total Revenue</div>
+            </div>
+
+            <div class="kpi-card profit animate delay-1">
+                <div class="kpi-header">
+                    <div class="kpi-icon profit"><i class="fas fa-trending-up"></i></div>
+                    <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> 8.3%</div>
+                </div>
+                <div class="kpi-value">$549,787</div>
+                <div class="kpi-label">Gross Profit (43.3% margin)</div>
+            </div>
+
+            <div class="kpi-card orders animate delay-2">
+                <div class="kpi-header">
+                    <div class="kpi-icon orders"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> 15.2%</div>
+                </div>
+                <div class="kpi-value">848</div>
+                <div class="kpi-label">Total Transactions</div>
+            </div>
+
+            <div class="kpi-card customers animate delay-3">
+                <div class="kpi-header">
+                    <div class="kpi-icon customers"><i class="fas fa-user-check"></i></div>
+                    <div class="kpi-trend up"><i class="fas fa-arrow-up"></i> 5.8%</div>
+                </div>
+                <div class="kpi-value">$1,497</div>
+                <div class="kpi-label">Avg Order Value</div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Revenue Trend</h3>
+                    <div class="chart-actions">
+                        <button class="chart-btn active">Daily</button>
+                        <button class="chart-btn">Monthly</button>
+                    </div>
+                </div>
+                <canvas id="revenueChart" height="120"></canvas>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Sales by Category</h3>
+                </div>
+                <canvas id="categoryChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <!-- Store Performance -->
+        <div class="chart-card" style="margin-bottom: 32px;">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-store" style="margin-right: 8px; color: var(--gold);"></i> Store Performance Rankings</h3>
+            </div>
+            <div class="stores-grid">
+                <div class="store-card">
+                    <div class="store-rank gold">1</div>
+                    <div class="store-name">Mall of America</div>
+                    <div class="store-location"><i class="fas fa-map-marker-alt"></i> Bloomington, MN</div>
+                    <div class="store-metrics">
+                        <div class="store-metric">
+                            <div class="store-metric-value">$206.5K</div>
+                            <div class="store-metric-label">Revenue</div>
+                        </div>
+                        <div class="store-metric">
+                            <div class="store-metric-value">111</div>
+                            <div class="store-metric-label">Orders</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="store-card">
+                    <div class="store-rank silver">2</div>
+                    <div class="store-name">Seattle Pike Place</div>
+                    <div class="store-location"><i class="fas fa-map-marker-alt"></i> Seattle, WA</div>
+                    <div class="store-metrics">
+                        <div class="store-metric">
+                            <div class="store-metric-value">$185.9K</div>
+                            <div class="store-metric-label">Revenue</div>
+                        </div>
+                        <div class="store-metric">
+                            <div class="store-metric-value">123</div>
+                            <div class="store-metric-label">Orders</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="store-card">
+                    <div class="store-rank bronze">3</div>
+                    <div class="store-name">Downtown Flagship</div>
+                    <div class="store-location"><i class="fas fa-map-marker-alt"></i> New York, NY</div>
+                    <div class="store-metrics">
+                        <div class="store-metric">
+                            <div class="store-metric-value">$160.1K</div>
+                            <div class="store-metric-label">Revenue</div>
+                        </div>
+                        <div class="store-metric">
+                            <div class="store-metric-value">99</div>
+                            <div class="store-metric-label">Orders</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="store-card">
+                    <div class="store-rank normal">4</div>
+                    <div class="store-name">Chicago Loop Store</div>
+                    <div class="store-location"><i class="fas fa-map-marker-alt"></i> Chicago, IL</div>
+                    <div class="store-metrics">
+                        <div class="store-metric">
+                            <div class="store-metric-value">$159.9K</div>
+                            <div class="store-metric-label">Revenue</div>
+                        </div>
+                        <div class="store-metric">
+                            <div class="store-metric-value">108</div>
+                            <div class="store-metric-label">Orders</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Products & Customers Row -->
+        <div class="charts-grid">
+            <!-- Top Products -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title"><i class="fas fa-trophy" style="margin-right: 8px; color: var(--gold);"></i> Top Performing Products</h3>
+                </div>
+                <table class="products-table">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Units Sold</th>
+                            <th>Revenue</th>
+                            <th>Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <div class="product-icon electronics"><i class="fas fa-laptop"></i></div>
+                                    <div>
+                                        <div class="product-name">Laptop Pro 15</div>
+                                        <div class="product-brand">TechPro</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-electronics">Electronics</span></td>
+                            <td>256</td>
+                            <td style="color: var(--gold); font-weight: 600;">$329,677</td>
+                            <td style="color: var(--success);">$112,077</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <div class="product-icon electronics"><i class="fas fa-mobile-alt"></i></div>
+                                    <div>
+                                        <div class="product-name">Smartphone X12</div>
+                                        <div class="product-brand">MobileMax</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-electronics">Electronics</span></td>
+                            <td>231</td>
+                            <td style="color: var(--gold); font-weight: 600;">$228,798</td>
+                            <td style="color: var(--success);">$78,648</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <div class="product-icon electronics"><i class="fas fa-tv"></i></div>
+                                    <div>
+                                        <div class="product-name">Smart TV 55" 4K</div>
+                                        <div class="product-brand">TechVision</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-electronics">Electronics</span></td>
+                            <td>254</td>
+                            <td style="color: var(--gold); font-weight: 600;">$176,257</td>
+                            <td style="color: var(--success);">$61,957</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <div class="product-icon home"><i class="fas fa-robot"></i></div>
+                                    <div>
+                                        <div class="product-name">Robot Vacuum</div>
+                                        <div class="product-brand">CleanBot</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-home">Home</span></td>
+                            <td>172</td>
+                            <td style="color: var(--gold); font-weight: 600;">$59,568</td>
+                            <td style="color: var(--success);">$28,608</td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    <div class="product-icon sports"><i class="fas fa-dumbbell"></i></div>
+                                    <div>
+                                        <div class="product-name">Dumbbell Set 50lb</div>
+                                        <div class="product-brand">IronStrong</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><span class="badge badge-sports">Sports</span></td>
+                            <td>194</td>
+                            <td style="color: var(--gold); font-weight: 600;">$57,628</td>
+                            <td style="color: var(--success);">$28,528</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Top Customers -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title"><i class="fas fa-crown" style="margin-right: 8px; color: var(--gold);"></i> VIP Customers</h3>
+                </div>
+                <div class="customer-item">
+                    <div class="customer-rank" style="background: var(--gold-gradient); color: #1e293b;">1</div>
+                    <div class="customer-info">
+                        <div class="customer-name">Customer #9</div>
+                        <div class="customer-orders">46 orders</div>
+                    </div>
+                    <div class="customer-value">
+                        <div class="customer-spend">$86,215</div>
+                        <div class="customer-aov">AOV: $1,874</div>
+                    </div>
+                </div>
+                <div class="customer-item">
+                    <div class="customer-rank" style="background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%); color: #1e293b;">2</div>
+                    <div class="customer-info">
+                        <div class="customer-name">Customer #19</div>
+                        <div class="customer-orders">51 orders</div>
+                    </div>
+                    <div class="customer-value">
+                        <div class="customer-spend">$84,904</div>
+                        <div class="customer-aov">AOV: $1,665</div>
+                    </div>
+                </div>
+                <div class="customer-item">
+                    <div class="customer-rank" style="background: linear-gradient(135deg, #d97706 0%, #b45309 100%); color: white;">3</div>
+                    <div class="customer-info">
+                        <div class="customer-name">Customer #14</div>
+                        <div class="customer-orders">53 orders</div>
+                    </div>
+                    <div class="customer-value">
+                        <div class="customer-spend">$82,661</div>
+                        <div class="customer-aov">AOV: $1,560</div>
+                    </div>
+                </div>
+                <div class="customer-item">
+                    <div class="customer-rank" style="background: var(--bg-tertiary);">4</div>
+                    <div class="customer-info">
+                        <div class="customer-name">Customer #17</div>
+                        <div class="customer-orders">44 orders</div>
+                    </div>
+                    <div class="customer-value">
+                        <div class="customer-spend">$80,383</div>
+                        <div class="customer-aov">AOV: $1,827</div>
+                    </div>
+                </div>
+                <div class="customer-item">
+                    <div class="customer-rank" style="background: var(--bg-tertiary);">5</div>
+                    <div class="customer-info">
+                        <div class="customer-name">Customer #15</div>
+                        <div class="customer-orders">44 orders</div>
+                    </div>
+                    <div class="customer-value">
+                        <div class="customer-spend">$76,965</div>
+                        <div class="customer-aov">AOV: $1,749</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border);">
+                    <h4 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">Customer Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div style="text-align: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: var(--gold);">20</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">TOTAL CUSTOMERS</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: 700; color: var(--success);">$63.5K</div>
+                            <div style="font-size: 11px; color: var(--text-muted);">AVG LIFETIME VALUE</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Performance -->
+        <div class="chart-card" style="margin-bottom: 32px;">
+            <div class="chart-header">
+                <h3 class="chart-title"><i class="fas fa-layer-group" style="margin-right: 8px; color: var(--primary);"></i> Category Performance</h3>
+            </div>
+            <div style="padding: 20px 0;">
+                <div class="category-item">
+                    <div class="category-name">Computers</div>
+                    <div class="category-bar-container">
+                        <div class="category-bar" style="width: 100%; background: var(--blue-gradient);"></div>
+                    </div>
+                    <div class="category-value" style="color: var(--info);">$329,677 (26%)</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-name">Phones</div>
+                    <div class="category-bar-container">
+                        <div class="category-bar" style="width: 69%; background: var(--purple-gradient);"></div>
+                    </div>
+                    <div class="category-value" style="color: var(--primary);">$228,798 (18%)</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-name">TVs</div>
+                    <div class="category-bar-container">
+                        <div class="category-bar" style="width: 53%; background: var(--green-gradient);"></div>
+                    </div>
+                    <div class="category-value" style="color: var(--success);">$176,257 (14%)</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-name">Appliances</div>
+                    <div class="category-bar-container">
+                        <div class="category-bar" style="width: 28%; background: var(--gold-gradient);"></div>
+                    </div>
+                    <div class="category-value" style="color: var(--gold);">$92,907 (7%)</div>
+                </div>
+                <div class="category-item">
+                    <div class="category-name">Audio</div>
+                    <div class="category-bar-container">
+                        <div class="category-bar" style="width: 25%; background: var(--pink-gradient);"></div>
+                    </div>
+                    <div class="category-value" style="color: #ec4899;">$83,961 (7%)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory & Monthly -->
+        <div class="charts-grid">
+            <!-- Inventory Status -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title"><i class="fas fa-warehouse" style="margin-right: 8px; color: var(--warning);"></i> Inventory Status</h3>
+                </div>
+                <div class="inventory-grid">
+                    <div class="inventory-stat">
+                        <div class="inventory-stat-value" style="color: var(--gold);">21,951</div>
+                        <div class="inventory-stat-label">Total Units</div>
+                    </div>
+                    <div class="inventory-stat">
+                        <div class="inventory-stat-value" style="color: var(--success);">$2.57M</div>
+                        <div class="inventory-stat-label">Inventory Value</div>
+                    </div>
+                    <div class="inventory-stat">
+                        <div class="inventory-stat-value" style="color: var(--warning);">17</div>
+                        <div class="inventory-stat-label">Low Stock SKUs</div>
+                    </div>
+                    <div class="inventory-stat">
+                        <div class="inventory-stat-value" style="color: var(--success);">0</div>
+                        <div class="inventory-stat-label">Out of Stock</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <canvas id="inventoryChart" height="150"></canvas>
+                </div>
+            </div>
+
+            <!-- Monthly Trend -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title"><i class="fas fa-calendar-alt" style="margin-right: 8px; color: var(--info);"></i> Monthly Performance</h3>
+                </div>
+                <div style="padding: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-weight: 600;">December 2025</div>
+                            <div style="font-size: 13px; color: var(--text-muted);">291 transactions</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; color: var(--gold);">$456,893</div>
+                            <div style="font-size: 12px; color: var(--success);"><i class="fas fa-arrow-up"></i> Best Month</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-weight: 600;">November 2025</div>
+                            <div style="font-size: 13px; color: var(--text-muted);">246 transactions</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; color: var(--gold);">$387,124</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Profit: $165.6K</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: 10px; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-weight: 600;">January 2026</div>
+                            <div style="font-size: 13px; color: var(--text-muted);">274 transactions</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; color: var(--gold);">$371,585</div>
+                            <div style="font-size: 12px; color: var(--text-muted);">Profit: $163.5K</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--bg-tertiary); border-radius: 10px;">
+                        <div>
+                            <div style="font-weight: 600;">February 2026</div>
+                            <div style="font-size: 13px; color: var(--text-muted);">37 transactions (MTD)</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: 700; color: var(--gold);">$53,741</div>
+                            <div style="font-size: 12px; color: var(--info);">In Progress</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer style="text-align: center; padding: 32px; color: var(--text-muted); font-size: 13px;">
+            <p>Data Source: <strong>RetailMedallion</strong> Gold Layer | Last Updated: February 4, 2026</p>
+            <p style="margin-top: 8px;">Powered by Medallion Architecture (Bronze → Silver → Gold)</p>
+        </footer>
+    </main>
+
+    <script>
+        // Revenue Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan 5', 'Jan 8', 'Jan 10', 'Jan 13', 'Jan 17', 'Jan 22', 'Jan 27', 'Feb 1', 'Feb 3'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [17989, 19199, 16436, 20100, 18755, 18270, 11744, 22038, 25200],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#6366f1',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: value => '$' + (value/1000).toFixed(0) + 'K'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Category Chart
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Electronics', 'Home', 'Sports', 'Fashion', 'Food'],
+                datasets: [{
+                    data: [818694, 177552, 143017, 94402, 35878],
+                    backgroundColor: [
+                        '#3b82f6',
+                        '#10b981',
+                        '#fbbf24',
+                        '#ec4899',
+                        '#f97316'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            color: '#94a3b8',
+                            padding: 16,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
+        // Inventory Chart
+        const inventoryCtx = document.getElementById('inventoryChart').getContext('2d');
+        new Chart(inventoryCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mall of America', 'Seattle', 'NY Flagship', 'Chicago', 'Boston', 'LA Mall', 'Dallas', 'Miami'],
+                datasets: [{
+                    label: 'Inventory Value ($K)',
+                    data: [275, 362, 246, 292, 304, 431, 461, 195],
+                    backgroundColor: 'rgba(251, 191, 36, 0.7)',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#94a3b8', font: { size: 10 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(148, 163, 184, 0.1)' },
+                        ticks: {
+                            color: '#94a3b8',
+                            callback: value => '$' + value + 'K'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
